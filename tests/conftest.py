@@ -14,6 +14,7 @@ def driver():
         "browserName": "Chrome",
         "chromedriverExecutable": "C:/Users/Jamie/Desktop/chromedriver-win32/chromedriver.exe"
     }
+
     options = UiAutomator2Options().load_capabilities(desired_caps)
     driver = Remote(command_executor="http://localhost:4723/wd/hub", options=options)
     yield driver

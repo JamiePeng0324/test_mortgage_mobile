@@ -1,6 +1,7 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+import time
 
 class MortgagePage:
     CITY_XPATH = {
@@ -19,6 +20,9 @@ class MortgagePage:
         self.driver = driver
         self.amount_input = '//*[@id="txtAmount"]'
         self.interest_input = '//*[@id="txtInterestRate"]'
+        self.loan_term_year_20 = '//*[@id="mainform"]/div[4]/main/div/div[3]/section/div/div[4]/div[2]/div[1]/div/ul/li[1]/div/div/label'
+        self.loan_term_year_30 = '//*[@id="mainform"]/div[4]/main/div/div[3]/section/div/div[4]/div[2]/div[1]/div/ul/li[2]/div/div/label'
+        self.loan_term_year_other = '//*[@id="mainform"]/div[4]/main/div/div[3]/section/div/div[4]/div[2]/div[1]/div/ul/li[3]/div/div/label'
         self.loan_term_year_input = '//*[@id="txtLoanTermOtherYear"]'
         self.calculate_button = '//*[@id="btnCalculate"]'
         self.reset_button = '//*[@id="btnReset"]'
@@ -52,8 +56,26 @@ class MortgagePage:
     def fill_interest(self, rate):
         self.driver.find_element(By.XPATH, self.interest_input).send_keys(rate)
 
-    def fill_loan_term_year(self, years):
-        self.driver.find_element(By.XPATH, self.loan_term_year_input).send_keys(years)
+    def select_loan_term(self, years):
+        if years == 20:
+            term_xpath = self.loan_term_year_20
+        elif years == 30:
+            term_xpath = self.loan_term_year_30
+        else:
+            term_xpath = self.loan_term_year_other
+        term_element = WebDriverWait(self.driver, 10).until(
+            EC.element_to_be_clickable((By.XPATH, term_xpath))
+        )
+        term_element.click()
+        if years not in [20, 30]:
+            year_input = WebDriverWait(self.driver, 10).until(
+                EC.element_to_be_clickable((By.XPATH, self.loan_term_year_input))
+            )
+            self.driver.execute_script("arguments[0].scrollIntoView(true);", year_input)
+            time.sleep(1)
+            year_input.clear()
+            year_input.click()
+            year_input.send_keys(str(years))
 
     def tap_calculate(self):
         self.driver.find_element(By.XPATH, self.calculate_button).click()
